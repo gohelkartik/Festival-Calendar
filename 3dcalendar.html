@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Flip Calendar 2026</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #f43f5e;
+            --bg-dark: #0f172a;
+            --calendar-bg: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background: #0f172a;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1500px; /* Essential for 3D flip */
+            overflow: hidden;
+        }
+
+        /* --- CALENDAR CONTAINER --- */
+        .calendar-card {
+            width: 400px;
+            height: 550px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Front and Back of the "Page" */
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--calendar-bg);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 5px solid white;
+        }
+
+        /* Navigation */
+        .nav-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 25px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-header button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .nav-header button:hover { background: white; color: var(--primary); }
+
+        .month-year h2 { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; }
+
+        /* --- THE GRID --- */
+        .calendar-grid {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            background: #fff;
+        }
+
+        .day-name {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--secondary);
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .date-cell {
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #475569;
+            border-radius: 12px;
+            cursor: default;
+            position: relative;
+        }
+
+        /* --- FESTIVAL HIGHLIGHT --- */
+        .has-festival {
+            background: #fef2f2;
+            color: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(244, 63, 94, 0.2);
+            border: 2px solid var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .fest-tooltip {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-dark);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 10;
+            opacity: 0;
+            transition: 0.3s;
+            pointer-events: none;
+        }
+
+        .has-festival:hover .fest-tooltip {
+            opacity: 1;
+            bottom: 55px;
+        }
+
+        /* --- ANIMATION CLASSES --- */
+        .flip-next { transform: rotateY(-180deg); }
+        .flip-prev { transform: rotateY(180deg); }
+
+        .back-page {
+            transform: rotateY(180deg);
+        }
+
+        .footer-info {
+            padding: 15px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calendar-card" id="calendarCard">
+    <div class="page" id="mainPage">
+        <div class="nav-header">
+            <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+            <div class="month-year">
+                <h2 id="monthDisplay">January</h2>
+                <p style="opacity: 0.8; text-align: center;">2026</p>
+            </div>
+            <button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <div class="calendar-grid" id="grid">
+            <div class="day-name">Sun</div><div class="day-name">Mon</div><div class="day-name">Tue</div>
+            <div class="day-name">Wed</div><div class="day-name">Thu</div><div class="day-name">Fri</div>
+            <div class="day-name">Sat</div>
+            </div>
+
+        <div class="footer-info">
+            <i class="fas fa-star" style="color:var(--accent)"></i> Glowing dates have festivals
+        </div>
+    </div>
+</div>
+
+<script>
+    const months = [
+        "January", "February", "March", "April", "May", "June", 
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const festivals = {
+        "0-1": "New Year's Day",
+        "0-14": "Makar Sankranti",
+        "1-14": "Valentine's Day",
+        "1-15": "Maha Shivratri",
+        "2-4": "Holi (Festival of Colors)",
+        "2-20": "Eid al-Fitr",
+        "3-3": "Good Friday",
+        "5-21": "International Yoga Day",
+        "7-15": "Independence Day",
+        "7-28": "Raksha Bandhan",
+        "8-14": "Ganesh Chaturthi",
+        "9-8": "Diwali (Festival of Lights)",
+        "9-31": "Halloween",
+        "11-25": "Christmas Day",
+        "11-31": "New Year's Eve"
+    };
+
+    let currentMonth = 0; // January
+
+    function renderCalendar(month) {
+        const grid = document.getElementById('grid');
+        const monthDisplay = document.getElementById('monthDisplay');
+        
+        // Update Title
+        monthDisplay.innerText = months[month];
+
+        // Clear existing dates (keep labels)
+        const labels = grid.querySelectorAll('.day-name');
+        grid.innerHTML = '';
+        labels.forEach(l => grid.appendChild(l));
+
+        // Get first day of month and total days
+        const firstDay = new Date(2026, month, 1).getDay();
+        const daysInMonth = new Date(2026, month + 1, 0).getDate();
+
+        // Add Empty slots for previous month
+        for (let i = 0; i < firstDay; i++) {
+            const empty = document.createElement('div');
+            empty.className = 'date-cell';
+            grid.appendChild(empty);
+        }
+
+        // Add actual dates
+        for (let day = 1; day <= daysInMonth; day++) {
+            const cell = document.createElement('div');
+            cell.className = 'date-cell';
+            cell.innerText = day;
+
+            // Check for Festival
+            const festKey = `${month}-${day}`;
+            if (festivals[festKey]) {
+                cell.classList.add('has-festival');
+                const tip = document.createElement('div');
+                tip.className = 'fest-tooltip';
+                tip.innerText = festivals[festKey];
+                cell.appendChild(tip);
+            }
+
+            grid.appendChild(cell);
+        }
+    }
+
+    function changeMonth(dir) {
+        const card = document.getElementById('calendarCard');
+        
+        // 3D Flip Animation Logic
+        if (dir === 1) {
+            card.style.transform = "rotateY(-180deg)";
+        } else {
+            card.style.transform = "rotateY(180deg)";
+        }
+
+        setTimeout(() => {
+            currentMonth += dir;
+            if (currentMonth > 11) currentMonth = 0;
+            if (currentMonth < 0) currentMonth = 11;
+            
+            renderCalendar(currentMonth);
+            card.style.transform = "rotateY(0deg)";
+        }, 400); // Happens mid-flip
+    }
+
+    // Initial Load
+    renderCalendar(currentMonth);
+</script>
+
+</body>
+</html>

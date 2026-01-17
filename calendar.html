@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium 2026 Festival Calendar</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.92);
+            --primary: #4f46e5;
+            --secondary: #9333ea;
+            --accent: #f43f5e;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(-45deg, #6366f1, #a855f7, #ec4899, #06b6d4);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .calendar-wrapper {
+            width: 100%;
+            max-width: 900px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .hero {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 50px 40px;
+            text-align: center;
+            color: var(--text-main);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        .month-item {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: var(--transition);
+        }
+
+        .month-header {
+            padding: 25px 40px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .month-header:hover {
+            background: rgba(79, 70, 229, 0.03);
+        }
+
+        .month-info {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .month-num {
+            font-size: 3rem;
+            font-weight: 900;
+            color: rgba(0,0,0,0.04);
+            transition: var(--transition);
+        }
+
+        .month-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .month-item.active .month-num {
+            color: var(--primary);
+            opacity: 0.15;
+            transform: scale(1.15);
+        }
+
+        .toggle-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-sub);
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.05);
+            pointer-events: none;
+        }
+
+        .month-item.active .toggle-btn {
+            background: var(--primary);
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        .month-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+
+        .festivals-grid {
+            padding: 10px 40px 40px 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .fest-card {
+            background: white;
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid #f1f5f9;
+            transition: var(--transition);
+        }
+
+        .fest-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.08);
+            border-color: var(--primary);
+        }
+
+        .date-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+            color: var(--primary);
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .fest-card h3 {
+            font-size: 1.15rem;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .fest-card p {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2.2rem; }
+            .month-header { padding: 20px; }
+            .festivals-grid { grid-template-columns: 1fr; padding: 20px; }
+            .month-num { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="calendar-wrapper">
+    <div class="hero">
+        <h1>2026 Calendar</h1>
+        <p>A complete guide to the year's celebrations</p>
+    </div>
+
+    <div class="accordion">
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">01</span><span class="month-name">January</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">Jan 01</span><h3>New Year's Day</h3><p>Global celebration of the new year.</p></div>
+                    <div class="fest-card"><span class="date-badge">Jan 14</span><h3>Makar Sankranti</h3><p>Festival of kites and harvest.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">02</span><span class="month-name">February</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">Feb 14</span><h3>Valentine's Day</h3><p>Celebrating love and affection.</p></div>
+                    <div class="fest-card"><span class="date-badge">Feb 15</span><h3>Maha Shivratri</h3><p>Honoring Lord Shiva.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">03</span><span class="month-name">March</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">Mar 04</span><h3>Holi</h3><p>The vibrant Festival of Colors.</p></div>
+                    <div class="fest-card"><span class="date-badge">Mar 20</span><h3>Eid al-Fitr</h3><p>Marking the end of Ramadan.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">04</span><span class="month-name">April</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">Apr 05</span><h3>Easter Sunday</h3><p>Celebrating the Resurrection.</p></div>
+                    <div class="fest-card"><span class="date-badge">Apr 14</span><h3>Baisakhi</h3><p>New Year festival in North India.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">05</span><span class="month-name">May</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">May 10</span><h3>Mother's Day</h3><p>Honoring mothers worldwide.</p></div>
+                    <div class="fest-card"><span class="date-badge">May 27</span><h3>Eid al-Adha</h3><p>The festival of sacrifice.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">06</span><span class="month-name">June</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">Jun 21</span><h3>Father's Day</h3><p>Honoring fatherhood bonds.</p></div>
+                    <div class="fest-card"><span class="date-badge">Jun 21</span><h3>Yoga Day</h3><p>Celebrating physical and mental well-being.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">07</span><span class="month-name">July</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">Jul 04</span><h3>Independence Day</h3><p>United States National Day.</p></div>
+                    <div class="fest-card"><span class="date-badge">Jul 29</span><h3>Guru Purnima</h3><p>Celebrating spiritual teachers.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">08</span><span class="month-name">August</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">Aug 15</span><h3>Independence Day</h3><p>Indian Independence celebration.</p></div>
+                    <div class="fest-card"><span class="date-badge">Aug 28</span><h3>Raksha Bandhan</h3><p>Bond of protection between siblings.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">09</span><span class="month-name">September</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">Sep 14</span><h3>Ganesh Chaturthi</h3><p>Welcoming the Lord of Wisdom.</p></div>
+                    <div class="fest-card"><span class="date-badge">Sep 21</span><h3>World Peace Day</h3><p>A global call for non-violence.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">10</span><span class="month-name">October</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">Oct 08</span><h3>Diwali</h3><p>The grand Festival of Lights.</p></div>
+                    <div class="fest-card"><span class="date-badge">Oct 31</span><h3>Halloween</h3><p>Night of costumes and spooky fun.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">11</span><span class="month-name">November</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">Nov 14</span><h3>Children's Day</h3><p>Celebrating the future generation.</p></div>
+                    <div class="fest-card"><span class="date-badge">Nov 26</span><h3>Thanksgiving</h3><p>Day of gratitude and harvest.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="month-item">
+            <div class="month-header">
+                <div class="month-info"><span class="month-num">12</span><span class="month-name">December</span></div>
+                <div class="toggle-btn"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="month-content">
+                <div class="festivals-grid">
+                    <div class="fest-card"><span class="date-badge">Dec 25</span><h3>Christmas</h3><p>Joyful celebration of Christ's birth.</p></div>
+                    <div class="fest-card"><span class="date-badge">Dec 31</span><h3>New Year's Eve</h3><p>Countdown to 2027.</p></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const monthHeaders = document.querySelectorAll('.month-header');
+
+    monthHeaders.forEach(header => {
+        header.addEventListener('click', () => {
+            const item = header.parentElement;
+            const content = header.nextElementSibling;
+            const isActive = item.classList.contains('active');
+
+            // Close all others
+            document.querySelectorAll('.month-item').forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.classList.remove('active');
+                    otherItem.querySelector('.month-content').style.maxHeight = null;
+                }
+            });
+
+            // Toggle current
+            if (!isActive) {
+                item.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + "px";
+            } else {
+                item.classList.remove('active');
+                content.style.maxHeight = null;
+            }
+        });
+    });
+
+    // Fix height on window resize
+    window.addEventListener('resize', () => {
+        const activeItem = document.querySelector('.month-item.active .month-content');
+        if (activeItem) {
+            activeItem.style.maxHeight = activeItem.scrollHeight + "px";
+        }
+    });
+</script>
+
+</body>
+</html>
